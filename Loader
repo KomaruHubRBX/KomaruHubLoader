@@ -23,7 +23,7 @@ local CATALOG = {
 
 local SLATE_URL = "https://raw.githubusercontent.com/KomaruHubRBX/Slate/refs/heads/main/lua"
 
-local AVATAR_URL = "https://raw.githubusercontent.com/KomaruHubRBX/Slate/refs/heads/main/lua"
+local AVATAR_URL = "https://media.discordapp.net/attachments/1541181899828105276/1563321001280929892/99b1d800-ff2a-450f-bd78-30e09a299e79.jpg?ex=6add33a3&is=6adbe223&hm=f50cb667ce20691e0c3ad72a1be5e29b7845740bf9cb73987e64b4e9732d68aa&=&format=webp"
 
 local function loadRemoteImage(url, filename)
     local ok = pcall(function()
