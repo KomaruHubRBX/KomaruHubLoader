@@ -42,8 +42,8 @@ end
 
 local AVATAR_IMG = loadRemoteImage(AVATAR_URL, "KomaruHub_avatar.jpg") or "zap"
 
-local function thumb(placeId)
-    return string.format("rbxthumb://type=Asset&id=%d&w=150&h=150", placeId)
+local function thumb(universeId)
+    return string.format("rbxthumb://type=GameIcon&id=%d&w=150&h=150", universeId)
 end
 
 local function launch(entry)
@@ -174,7 +174,7 @@ do
     local notice = Tab:CreateSection({ Name = "Unsupported game" })
     notice:Paragraph({
         Name = "No script for " .. placeName,
-        Description = "Every script below reads its own game data on start and will stall here.",
+        Description = "Copy a game name below and search it in Roblox to join manually.",
     })
 end
 
@@ -184,67 +184,36 @@ do
 
     for _, entry in ipairs(CATALOG) do
         if entry.Listed then
-            local start = function()
+            local copyName = function()
+                local ok = pcall(function()
+                    setclipboard(entry.Name)
+                end)
                 Slate:Notify({
                     Title = "Komaru Hub",
-                    Description = "Starting " .. entry.Name,
-                    Icon = "play",
-                    Duration = 5,
+                    Description = ok
+                        and ("Copied \"" .. entry.Name .. "\" - search it in Roblox to join.")
+                        or ("Clipboard unavailable. Game name: " .. entry.Name),
+                    Icon = "copy",
+                    Tone = ok and "Success" or "Warning",
+                    Duration = 8,
                 })
-                task.spawn(function()
-                    local finished, ok, err = false, nil, nil
-                    task.spawn(function()
-                        ok, err = launch(entry)
-                        finished = true
-                    end)
-                    local waited = 0
-                    while not finished and waited < 6 do
-                        task.wait(0.25)
-                        waited += 0.25
-                    end
-                    if not finished then
-                        Slate:Notify({
-                            Title = "Komaru Hub",
-                            Description = entry.Name .. " is stuck waiting for its own game data",
-                            Icon = "triangle-alert",
-                            Tone = "Warning",
-                            Duration = 10,
-                        })
-                    elseif not ok then
-                        Slate:Notify({
-                            Title = "Komaru Hub",
-                            Description = entry.Name .. " failed: " .. tostring(err),
-                            Icon = "circle-alert",
-                            Tone = "Danger",
-                            Duration = 10,
-                        })
-                    else
-                        Slate:Notify({
-                            Title = "Komaru Hub",
-                            Description = entry.Name .. " started",
-                            Icon = "circle-check",
-                            Tone = "Success",
-                            Duration = 8,
-                        })
-                    end
-                end)
             end
             local card = grid:Invite({
                 Name = entry.Name,
-                Icon = thumb(entry.Places[1]),
+                Icon = thumb(entry.Universe),
                 Stats = {
                     { Text = "Place " .. tostring(entry.Places[1]), Dot = entry.Tone },
                 },
                 Game = "ROBLOX",
                 GameIcon = "gamepad-2",
                 Tone = entry.Tone,
-                Glyph = "play",
-                ButtonText = "Run",
+                Glyph = "copy",
+                ButtonText = "Copy Name",
                 ButtonColor = entry.Tone,
-                CopiedText = "Starting",
-                Callback = start,
+                CopiedText = "Copied",
+                Callback = copyName,
             })
-            arm(card, start)
+            arm(card, copyName)
         end
     end
 end
@@ -265,7 +234,7 @@ end
 
 Slate:Notify({
     Title = "Komaru Hub",
-    Description = "No script for " .. placeName .. ". Pick one below to run it anyway.",
+    Description = "No script for " .. placeName .. ". Copy a name to search it manually.",
     Icon = "triangle-alert",
     Tone = "Warning",
     Duration = 10,
